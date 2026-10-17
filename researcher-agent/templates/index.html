@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3ef">
+  <title>Company Researcher</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17231f;
+      --muted: #68746e;
+      --line: #e1e6df;
+      --paper: #fff;
+      --canvas: #f4f3ef;
+      --green: #1d684d;
+      --green-dark: #15543d;
+      --soft-green: #e7f1eb;
+      --amber: #fff4dd;
+      --red: #9c3838;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 88% 4%, rgba(211, 229, 214, .65), transparent 31rem),
+        var(--canvas);
+      color: var(--ink);
+    }
+
+    .shell { width: min(100% - 40px, 920px); margin: 0 auto; padding: 46px 0 72px; }
+    .topline { display: flex; align-items: center; gap: 12px; margin-bottom: 55px; }
+    .brand-mark {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--green);
+      color: white;
+      font-size: 18px;
+      font-weight: 750;
+    }
+    .brand { font-size: 15px; font-weight: 700; letter-spacing: -.02em; }
+    .brand-sub { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .intro { max-width: 680px; margin: 0 auto 30px; text-align: center; }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; font-size: clamp(36px, 6vw, 58px); line-height: 1.04; letter-spacing: -.055em; }
+    .intro-copy { max-width: 540px; margin: 17px auto 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
+    .search-card {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 10px;
+      border: 1px solid rgba(225, 230, 223, .9);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .92);
+      box-shadow: 0 18px 55px rgba(29, 50, 39, .08);
+    }
+    .search-row { display: flex; gap: 10px; }
+    .input-wrap { flex: 1; min-width: 0; padding: 4px 0 4px 12px; }
+    label { display: block; margin-bottom: 3px; color: var(--muted); font-size: 11px; font-weight: 650; }
+    input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      font-size: 16px;
+    }
+    input::placeholder { color: #9aa39e; }
+    button {
+      display: inline-flex;
+      min-height: 54px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 21px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--green);
+      color: white;
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 680;
+      transition: background .15s ease, transform .15s ease;
+    }
+    button:hover { background: var(--green-dark); transform: translateY(-1px); }
+    button:disabled { cursor: wait; opacity: .72; transform: none; }
+    .helper { margin: 12px 4px 2px; color: var(--muted); font-size: 12px; text-align: center; }
+    .status {
+      display: none;
+      max-width: 700px;
+      margin: 18px auto 0;
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .status.visible { display: block; }
+    .status.loading { background: var(--soft-green); color: var(--green-dark); }
+    .status.success { background: var(--soft-green); color: var(--green-dark); }
+    .status.error { background: #fff0ef; color: var(--red); }
+    .status.notice { background: var(--amber); color: #76551b; }
+    .spinner {
+      width: 15px;
+      height: 15px;
+      border: 2px solid rgba(255, 255, 255, .45);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #report { margin: 40px auto 0; }
+    .report-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    .report-kicker { margin: 0 0 5px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    h2 { margin: 0; font-size: clamp(25px, 4vw, 34px); letter-spacing: -.04em; }
+    .domain-pill { padding: 7px 11px; border: 1px solid var(--line); border-radius: 99px; background: white; color: var(--muted); font-size: 12px; }
+    .report-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .panel { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 15px; background: var(--paper); }
+    .panel.wide { grid-column: 1 / -1; }
+    .panel-title { margin: 0 0 10px; color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    .panel p { margin: 0; color: #34413b; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+    .panel ul { margin: 0; padding-left: 19px; color: #34413b; font-size: 14px; line-height: 1.8; }
+    .sources { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+    .sources a { color: var(--green); font-size: 13px; overflow-wrap: anywhere; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .sources a:hover { color: var(--green-dark); }
+    .footer-note { margin: 22px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+    [hidden] { display: none !important; }
+
+    @media (max-width: 600px) {
+      .shell { width: min(100% - 28px, 920px); padding-top: 26px; }
+      .topline { margin-bottom: 46px; }
+      .search-row { flex-direction: column; }
+      .input-wrap { padding: 5px 10px 10px; }
+      button { width: 100%; }
+      .report-grid { grid-template-columns: 1fr; }
+      .panel.wide { grid-column: auto; }
+      .report-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topline">
+      <div class="brand-mark" aria-hidden="true">R</div>
+      <div>
+        <div class="brand">Researcher</div>
+        <div class="brand-sub">Company intelligence, made clear</div>
+      </div>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">AI-powered company research</p>
+      <h1 id="page-title">Know the company<br>before the conversation.</h1>
+      <p class="intro-copy">Enter a company website to get a concise profile, customer overview, strategic priorities, recent news, and source links.</p>
+    </section>
+
+    <form id="research-form" class="search-card">
+      <div class="search-row">
+        <div class="input-wrap">
+          <label for="company">COMPANY WEBSITE</label>
+          <input id="company" name="company" type="text" placeholder="e.g. stripe.com" autocomplete="url" required>
+        </div>
+        <button id="submit-button" type="submit">
+          <span id="button-label">Research company</span>
+        </button>
+      </div>
+    </form>
+    <p class="helper">Usually takes a few moments. Results may be reused from the 7-day research cache.</p>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+
+    <section id="report" hidden aria-live="polite">
+      <div class="report-head">
+        <div>
+          <p class="report-kicker">Research brief</p>
+          <h2 id="company-name"></h2>
+        </div>
+        <span id="domain" class="domain-pill"></span>
+      </div>
+      <div class="report-grid">
+        <article class="panel wide">
+          <h3 class="panel-title">Company overview</h3>
+          <p id="summary"></p>
+        </article>
+        <article class="panel">
+          <h3 class="panel-title">Industry</h3>
+          <p id="industry"></p>
+        </article>
+        <article class="panel">
+          <h3 class="panel-title">Target customers</h3>
+          <p id="customers"></p>
+        </article>
+        <article class="panel">
+          <h3 class="panel-title">Strategic priorities</h3>
+          <ul id="goals"></ul>
+        </article>
+        <article class="panel">
+          <h3 class="panel-title">Recent news</h3>
+          <p id="news"></p>
+        </article>
+        <article class="panel wide">
+          <h3 class="panel-title">Sources</h3>
+          <ul id="sources" class="sources"></ul>
+        </article>
+      </div>
+      <p class="footer-note">AI-generated research can contain inaccuracies. Verify important details with the linked sources.</p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.querySelector("#research-form");
+    const input = document.querySelector("#company");
+    const button = document.querySelector("#submit-button");
+    const buttonLabel = document.querySelector("#button-label");
+    const statusBox = document.querySelector("#status");
+    const report = document.querySelector("#report");
+
+    function showStatus(message, kind) {
+      statusBox.textContent = message;
+      statusBox.className = `status visible ${kind}`;
+    }
+
+    function setText(id, value) {
+      document.getElementById(id).textContent = value || "Not available.";
+    }
+
+    function renderList(id, values, asLinks) {
+      const list = document.getElementById(id);
+      list.replaceChildren();
+      for (const value of values || []) {
+        const item = document.createElement("li");
+        if (asLinks) {
+          try {
+            const url = new URL(value);
+            if (url.protocol !== "https:" && url.protocol !== "http:") continue;
+            const link = document.createElement("a");
+            link.href = url.href;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = value;
+            item.append(link);
+          } catch {
+            continue;
+          }
+        } else {
+          item.textContent = value;
+        }
+        list.append(item);
+      }
+      if (list.children.length === 0) {
+        const item = document.createElement("li");
+        item.textContent = "No information available.";
+        list.append(item);
+      }
+    }
+
+    function renderReport(data) {
+      setText("company-name", data.company_name);
+      setText("domain", data.domain);
+      setText("summary", data.summary);
+      setText("industry", data.industry);
+      setText("customers", data.target_customers);
+      setText("news", data.recent_news);
+      renderList("goals", data.strategic_goals, false);
+      renderList("sources", data.sources, true);
+      report.hidden = false;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const company = input.value.trim();
+      if (!company) {
+        input.focus();
+        return;
+      }
+
+      report.hidden = true;
+      button.disabled = true;
+      buttonLabel.textContent = "Researching...";
+      showStatus("Searching the web and preparing your company brief. This can take a minute.", "loading");
+
+      try {
+        const response = await fetch("/api/research", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ company }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Research request failed.");
+
+        renderReport(result.report);
+        showStatus(
+          result.cached ? "Showing a saved report from the research cache." : "Research complete.",
+          result.cached ? "notice" : "success"
+        );
+        report.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        showStatus(error.message || "Something went wrong. Please try again.", "error");
+      } finally {
+        button.disabled = false;
+        buttonLabel.textContent = "Research company";
+      }
+    });
+  </script>
+</body>
+</html>
