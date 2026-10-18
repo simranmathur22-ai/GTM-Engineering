@@ -14,7 +14,10 @@ from google.genai import errors
 from agent import research_company
 from cache import check_cache, save_cache
 
-load_dotenv(Path(__file__).with_name(".env"))
+APP_DIRECTORY = Path(__file__).resolve().parent
+REPOSITORY_DIRECTORY = APP_DIRECTORY.parent
+load_dotenv(REPOSITORY_DIRECTORY / ".env")
+load_dotenv(APP_DIRECTORY / ".env")
 
 app = Flask(__name__)
 logger = logging.getLogger(__name__)
@@ -89,9 +92,16 @@ def research():
         return jsonify(error=str(exc)), 400
 
     if not os.getenv("GEMINI_API_KEY"):
-        return jsonify(error="GEMINI_API_KEY is missing. Add it to the project .env file."), 503
+        return jsonify(
+            error=f"GEMINI_API_KEY is missing. Add it to {REPOSITORY_DIRECTORY / '.env'}."
+        ), 503
     if not os.getenv("SERPER_API_KEY"):
-        return jsonify(error="SERPER_API_KEY is missing. Add it to the project .env file for live web search."), 503
+        return jsonify(
+            error=(
+                f"SERPER_API_KEY is missing. Add it to {REPOSITORY_DIRECTORY / '.env'} "
+                "for live web search."
+            )
+        ), 503
 
     cached_data = check_cache(domain)
     if cached_data:
@@ -122,6 +132,13 @@ def research():
             return jsonify(
                 error="The configured Gemini model is unavailable. Set GEMINI_MODEL to a model enabled for your API key."
             ), 502
+        if exc.code in (500, 502, 503, 504):
+            return jsonify(
+                error=(
+                    "Gemini is temporarily unavailable after automatic retries. "
+                    "Wait a moment and try again."
+                )
+            ), 503
         return jsonify(error=f"Gemini API request failed (HTTP {exc.code}). Check the server terminal for details."), 502
     except Exception:
         logger.exception("Company research failed for %s", domain)

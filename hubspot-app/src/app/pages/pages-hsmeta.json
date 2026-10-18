@@ -1,0 +1,7 @@
+{
+  "uid": "email_composer_hubspot_page",
+  "type": "page",
+  "config": {
+    "entrypoint": "/app/pages/Pages.tsx"
+  }
+}

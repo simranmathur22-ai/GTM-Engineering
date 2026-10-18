@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4f0">
+  <title>Email Composer · GTM Engineering</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17231f;
+      --muted: #69756e;
+      --line: #e1e6df;
+      --paper: #fff;
+      --canvas: #f5f4f0;
+      --green: #1d684d;
+      --green-dark: #15543d;
+      --soft-green: #e7f1eb;
+      --amber: #fff4dd;
+      --red: #963f3b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: radial-gradient(ellipse at 88% 4%, rgba(211,229,214,.65), transparent 31rem), var(--canvas);
+    }
+    .shell { width: min(100% - 40px, 1040px); margin: 0 auto; padding: 34px 0 72px; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 55px; }
+    .brand-lockup { display: flex; align-items: center; gap: 11px; }
+    .brand-mark { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: var(--green); color: white; font-weight: 800; }
+    .brand { font-size: 15px; font-weight: 750; letter-spacing: -.02em; }
+    .brand-sub { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .local-label { padding: 7px 10px; border: 1px solid var(--line); border-radius: 99px; background: rgba(255,255,255,.7); color: var(--muted); font-size: 11px; }
+    .hubspot-controls { display: flex; align-items: center; gap: 10px; }
+    .hubspot-button { min-height: 38px; padding: 0 13px; border: 1px solid var(--line); background: white; color: var(--green-dark); font-size: 12px; text-decoration: none; }
+    .hubspot-button:hover { background: var(--soft-green); }
+    .hubspot-panel { max-width: 760px; margin: 13px auto 0; }
+    .hubspot-panel p { margin: 0 0 10px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .hubspot-row { display: flex; align-items: end; gap: 10px; }
+    .hubspot-row button, .hubspot-row select { min-height: 42px; }
+    .hubspot-row select { flex: 1; min-width: 0; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--ink); font: inherit; }
+    .send-in-hubspot { min-height: 36px; align-self: flex-start; padding: 0 12px; font-size: 12px; text-decoration: none; }
+    .intro { max-width: 720px; margin: 0 auto 30px; text-align: center; }
+    .eyebrow { margin: 0 0 12px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(36px, 6vw, 58px); line-height: 1.04; letter-spacing: -.055em; }
+    .intro-copy { max-width: 620px; margin: 17px auto 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
+    .product-note { max-width: 700px; margin: 0 auto 18px; padding: 13px 16px; border: 1px solid #d6e4d9; border-radius: 13px; background: rgba(231,241,235,.72); color: #315541; font-size: 13px; line-height: 1.6; text-align: left; }
+    .search-card { max-width: 760px; margin: 0 auto; padding: 10px; border: 1px solid rgba(225,230,223,.9); border-radius: 18px; background: rgba(255,255,255,.94); box-shadow: 0 18px 55px rgba(29,50,39,.08); }
+    .search-row { display: flex; align-items: flex-end; gap: 10px; }
+    .input-wrap { flex: 1; min-width: 0; padding: 4px 0 4px 12px; }
+    label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+    input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 16px; }
+    input::placeholder { color: #9aa39e; }
+    button { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: 9px; padding: 0 19px; border: 0; border-radius: 12px; background: var(--green); color: white; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; transition: background .15s ease, transform .15s ease; }
+    button:hover { background: var(--green-dark); transform: translateY(-1px); }
+    button:disabled { cursor: wait; opacity: .7; transform: none; }
+    .helper { margin: 12px 4px 2px; color: var(--muted); font-size: 12px; text-align: center; }
+    .status { display: none; max-width: 760px; margin: 18px auto 0; padding: 13px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+    .status.visible { display: block; }
+    .status.loading, .status.success { background: var(--soft-green); color: var(--green-dark); }
+    .status.error { background: #fff0ef; color: var(--red); }
+    .status.notice { background: var(--amber); color: #76551b; }
+    #campaign { margin: 42px auto 0; }
+    .campaign-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 17px; }
+    .kicker { margin: 0 0 5px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    h2 { margin: 0; font-size: clamp(25px, 4vw, 34px); letter-spacing: -.04em; }
+    .domain-pill { padding: 7px 11px; border: 1px solid var(--line); border-radius: 99px; background: white; color: var(--muted); font-size: 12px; }
+    .agent-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-bottom: 14px; }
+    .agent-step { padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+    .agent-number { display: block; margin-bottom: 5px; color: var(--green); font-size: 10px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .agent-name { font-size: 12px; font-weight: 680; }
+    .panel { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 15px; background: var(--paper); }
+    .panel-title { margin: 0 0 10px; color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    .panel p { margin: 0; color: #34413b; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+    .strategy-panel { margin-bottom: 14px; }
+    .strategy-row { margin-top: 9px !important; }
+    .evidence { display: grid; gap: 8px; margin: 13px 0 0; padding-left: 19px; color: #34413b; font-size: 13px; line-height: 1.55; }
+    .sources a { color: var(--green); overflow-wrap: anywhere; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .source-label { display: block; margin-top: 3px; font-size: 11px; }
+    .caveat { margin-top: 12px !important; color: #76551b !important; }
+    .campaign-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .email-card { display: flex; flex-direction: column; gap: 12px; }
+    .email-card h3 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
+    .email-subject { color: var(--ink) !important; font-size: 13px !important; font-weight: 680; }
+    .email-body { flex: 1; color: #34413b; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+    .review-badge { align-self: flex-start; padding: 5px 8px; border-radius: 99px; background: var(--soft-green); color: var(--green-dark); font-size: 11px; font-weight: 700; }
+    .review-badge.needs-review { background: var(--amber); color: #76551b; }
+    .review-notes { margin: 0; padding-left: 17px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .copy-button { min-height: 36px; align-self: flex-start; padding: 0 12px; border: 1px solid var(--line); background: white; color: var(--green-dark); font-size: 12px; }
+    .copy-button:hover { background: #f7faf7; }
+    .review-banner { margin: 14px 0 0; padding: 14px 16px; border: 1px solid #ead7a9; border-radius: 12px; background: var(--amber); color: #76551b; font-size: 13px; line-height: 1.55; }
+    .summary { margin: 13px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; text-align: center; }
+    [hidden] { display: none !important; }
+    @media (max-width: 680px) {
+      .shell { width: min(100% - 28px, 1040px); padding-top: 24px; }
+      .topline { margin-bottom: 43px; }
+      .search-row { align-items: stretch; flex-direction: column; }
+      .input-wrap { padding: 7px 10px 10px; }
+      button { width: 100%; }
+      .agent-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .campaign-grid { grid-template-columns: 1fr; }
+      .campaign-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topline">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true">EC</div>
+        <div>
+          <div class="brand">Email Composer</div>
+          <div class="brand-sub">A human-reviewed, multi-agent sales workflow</div>
+        </div>
+      </div>
+      <div class="hubspot-controls">
+        {% if hubspot_connected %}
+          <span class="local-label">HubSpot connected</span>
+          <form method="post" action="{{ url_for('disconnect_hubspot') }}">
+            <button class="hubspot-button" type="submit">Disconnect</button>
+          </form>
+        {% elif hubspot_configured %}
+          <a class="hubspot-button" href="{{ url_for('connect_hubspot') }}">Connect HubSpot</a>
+        {% else %}
+          <span class="local-label">HubSpot not connected</span>
+        {% endif %}
+      </div>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">Research · Strategy · Draft · Review</p>
+      <h1 id="page-title">Make the first email<br>earn its place.</h1>
+      <p class="intro-copy">Create evidence-grounded outreach for a CRM PII Exposure Scanner. Four specialist agents work in sequence; you stay in control of every draft.</p>
+    </section>
+
+    <aside class="product-note">
+      <strong>Demo product:</strong> a scanner concept that helps CRM teams find potential personal information in free-text fields for human review. This app does not scan CRM data, identify actual incidents, or provide legal advice. Email drafts are copied to HubSpot for you to review and send there; this app never sends them.
+    </aside>
+
+    <form id="campaign-form" class="search-card">
+      <div class="search-row">
+        <div class="input-wrap">
+          <label for="company">COMPANY WEBSITE OR DOMAIN</label>
+          <input id="company" name="company" type="text" placeholder="e.g. example.com" autocomplete="url" required>
+        </div>
+        <button id="submit-button" type="submit"><span id="button-label">Build email campaign</span></button>
+      </div>
+    </form>
+    <p class="helper">Uses public company research and the local 7-day cache. A first run can take a few minutes on rate-limited API plans.</p>
+    <section class="hubspot-panel panel" aria-labelledby="hubspot-title">
+      <h2 id="hubspot-title" class="panel-title">HubSpot contact</h2>
+      {% if hubspot_connected %}
+        <p>Enter the company domain above, then find an associated HubSpot contact. The selected contact is verified again before campaign generation.</p>
+        <div class="hubspot-row">
+          <button id="find-contacts" class="hubspot-button" type="button">Find company contacts</button>
+          <select id="contact-select" aria-label="HubSpot contact" hidden>
+            <option value="">Choose a contact</option>
+          </select>
+        </div>
+      {% elif hubspot_configured %}
+        <p>Connect HubSpot to choose an account contact and open its record after reviewing a draft.</p>
+      {% else %}
+        <p>To connect, create a HubSpot OAuth app with read access to contacts and companies, then set HUBSPOT_CLIENT_ID, HUBSPOT_CLIENT_SECRET, and HUBSPOT_REDIRECT_URI in the repository-root .env.</p>
+      {% endif %}
+    </section>
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+
+    <section id="campaign" hidden aria-live="polite">
+      <div class="campaign-head">
+        <div>
+          <p class="kicker">Account outreach brief</p>
+          <h2 id="company-name"></h2>
+        </div>
+        <span id="company-domain" class="domain-pill"></span>
+      </div>
+      <div class="agent-flow" aria-label="Sequential agent workflow">
+        <div class="agent-step"><span class="agent-number">Stage 01</span><span class="agent-name">Company Researcher</span></div>
+        <div class="agent-step"><span class="agent-number">Stage 02</span><span class="agent-name">Account Strategist</span></div>
+        <div class="agent-step"><span class="agent-number">Stage 03</span><span class="agent-name">Email Copywriter</span></div>
+        <div class="agent-step"><span class="agent-number">Stage 04</span><span class="agent-name">Quality Reviewer</span></div>
+      </div>
+
+      <article class="panel strategy-panel">
+        <h3 class="panel-title">Account strategy · hypothesis, not a security finding</h3>
+        <p><strong id="buyer-persona"></strong></p>
+        <p id="account-hypothesis" class="strategy-row"></p>
+        <p id="product-relevance" class="strategy-row"></p>
+        <ul id="evidence" class="evidence"></ul>
+        <p id="caveat" class="caveat"></p>
+      </article>
+      <div id="drafts" class="campaign-grid"></div>
+      <p id="review-summary" class="summary"></p>
+      <p id="recipient-summary" class="review-banner" hidden></p>
+      <p class="review-banner"><strong>Human approval required.</strong> An AI review is not legal, privacy, or security approval. Verify every source and draft before use. Email is never sent by this app; the user must open HubSpot and send it there.</p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.querySelector("#campaign-form");
+    const input = document.querySelector("#company");
+    const submitButton = document.querySelector("#submit-button");
+    const buttonLabel = document.querySelector("#button-label");
+    const statusBox = document.querySelector("#status");
+    const campaign = document.querySelector("#campaign");
+    const contactSelect = document.querySelector("#contact-select");
+    const findContactsButton = document.querySelector("#find-contacts");
+
+    function showStatus(message, kind) {
+      statusBox.textContent = message;
+      statusBox.className = `status visible ${kind}`;
+    }
+
+    function setText(id, text) {
+      document.getElementById(id).textContent = text || "Not available.";
+    }
+
+    function safeLink(value) {
+      try {
+        const url = new URL(value);
+        if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+        const link = document.createElement("a");
+        link.href = url.href;
+        link.textContent = value;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        return link;
+      } catch {
+        return null;
+      }
+    }
+
+    function renderCampaign(data) {
+      const strategy = data.strategy;
+      setText("company-name", data.company.company_name);
+      setText("company-domain", data.company.domain);
+      setText("buyer-persona", strategy.buyer_persona);
+      setText("account-hypothesis", strategy.account_hypothesis);
+      setText("product-relevance", strategy.product_relevance);
+      setText("caveat", strategy.caveat);
+      setText("review-summary", data.review_summary);
+      const recipientSummary = document.querySelector("#recipient-summary");
+      recipientSummary.hidden = !data.hubspot_contact;
+      if (data.hubspot_contact) {
+        recipientSummary.replaceChildren();
+        const label = document.createElement("strong");
+        label.textContent = `CRM recipient: ${data.hubspot_contact.name}`;
+        recipientSummary.append(label);
+        if (data.hubspot_contact.email) {
+          recipientSummary.append(document.createTextNode(` · ${data.hubspot_contact.email}`));
+        }
+        if (data.hubspot_contact.record_url) {
+          recipientSummary.append(document.createTextNode(" · "));
+          const link = document.createElement("a");
+          link.href = data.hubspot_contact.record_url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Open contact in HubSpot to send";
+          link.className = "send-in-hubspot";
+          recipientSummary.append(link);
+        }
+      }
+
+      const evidenceList = document.querySelector("#evidence");
+      evidenceList.replaceChildren();
+      for (const signal of strategy.evidence || []) {
+        const item = document.createElement("li");
+        item.append(document.createTextNode(`${signal.fact} `));
+        const link = safeLink(signal.source_url);
+        if (link) {
+          const source = document.createElement("span");
+          source.className = "source-label";
+          source.append(link);
+          item.append(source);
+        }
+        evidenceList.append(item);
+      }
+
+      const draftContainer = document.querySelector("#drafts");
+      draftContainer.replaceChildren();
+      for (const draft of data.drafts || []) {
+        const card = document.createElement("article");
+        card.className = "panel email-card";
+        const heading = document.createElement("h3");
+        heading.textContent = draft.angle;
+        const badge = document.createElement("span");
+        badge.className = `review-badge${draft.approved_by_ai_review ? "" : " needs-review"}`;
+        badge.textContent = draft.approved_by_ai_review ? "Passed AI checks · still review" : "Needs careful review";
+        const subject = document.createElement("p");
+        subject.className = "email-subject";
+        subject.textContent = `Subject: ${draft.subject}`;
+        const body = document.createElement("p");
+        body.className = "email-body";
+        body.textContent = draft.body;
+        card.append(heading, badge, subject, body);
+
+        if (draft.review_notes?.length) {
+          const notes = document.createElement("ul");
+          notes.className = "review-notes";
+          for (const note of draft.review_notes) {
+            const item = document.createElement("li");
+            item.textContent = note;
+            notes.append(item);
+          }
+          card.append(notes);
+        }
+        if (draft.source_urls?.length) {
+          const sourceList = document.createElement("ul");
+          sourceList.className = "sources email-sources";
+          for (const source of draft.source_urls) {
+            const link = safeLink(source);
+            if (link) {
+              const item = document.createElement("li");
+              item.append(link);
+              sourceList.append(item);
+            }
+          }
+          if (sourceList.children.length) card.append(sourceList);
+        }
+
+        const copyButton = document.createElement("button");
+        copyButton.type = "button";
+        copyButton.className = "copy-button";
+        copyButton.textContent = "Copy draft";
+        copyButton.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(`Subject: ${draft.subject}\n\n${draft.body}`);
+            copyButton.textContent = "Copied";
+            window.setTimeout(() => { copyButton.textContent = "Copy draft"; }, 1500);
+          } catch {
+            showStatus("Clipboard access failed. Select and copy the draft text instead.", "notice");
+          }
+        });
+        card.append(copyButton);
+        draftContainer.append(card);
+      }
+      campaign.hidden = false;
+    }
+
+    if (findContactsButton && contactSelect) {
+      input.addEventListener("input", () => {
+        contactSelect.replaceChildren(new Option("Choose a contact", ""));
+        contactSelect.hidden = true;
+      });
+      findContactsButton.addEventListener("click", async () => {
+        const domain = input.value.trim();
+        if (!domain) {
+          input.focus();
+          showStatus("Enter a company website or domain before looking up HubSpot contacts.", "notice");
+          return;
+        }
+        findContactsButton.disabled = true;
+        findContactsButton.textContent = "Searching HubSpot...";
+        try {
+          const response = await fetch(`/api/hubspot/contacts?domain=${encodeURIComponent(domain)}`);
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || "HubSpot contact lookup failed.");
+          contactSelect.replaceChildren(new Option("Choose a contact", ""));
+          for (const contact of result.contacts) {
+            const details = [contact.name, contact.job_title, contact.email].filter(Boolean).join(" · ");
+            contactSelect.add(new Option(details, contact.id));
+          }
+          contactSelect.hidden = result.contacts.length === 0;
+          if (result.contacts.length === 0) {
+            showStatus("No contacts are associated with a HubSpot company matching that domain.", "notice");
+          } else {
+            contactSelect.value = "";
+            showStatus(`Found ${result.contacts.length} contact(s). Select one before building the campaign.`, "success");
+          }
+        } catch (error) {
+          showStatus(error.message || "HubSpot contact lookup failed.", "error");
+        } finally {
+          findContactsButton.disabled = false;
+          findContactsButton.textContent = "Find company contacts";
+        }
+      });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const company = input.value.trim();
+      if (!company) {
+        input.focus();
+        return;
+      }
+      if (findContactsButton && !contactSelect.value) {
+        showStatus("Find and select a HubSpot contact before building this campaign.", "notice");
+        return;
+      }
+      campaign.hidden = true;
+      submitButton.disabled = true;
+      buttonLabel.textContent = "Agents working...";
+      showStatus(
+        "Running researcher → strategist → copywriter → reviewer. Keep this page open; Gemini request pacing can make the first run take a few minutes.",
+        "loading"
+      );
+
+      try {
+        const response = await fetch("/api/campaign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company,
+            hubspot_contact_id: contactSelect?.value || undefined,
+          }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Campaign request failed.");
+        renderCampaign(result.campaign);
+        showStatus("Drafts are ready. Please verify sources and review every message before use.", "success");
+        campaign.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        showStatus(error.message || "Campaign generation failed. Please try again.", "error");
+      } finally {
+        submitButton.disabled = false;
+        buttonLabel.textContent = "Build email campaign";
+      }
+    });
+
+    const hubspotStatus = new URLSearchParams(window.location.search).get("hubspot");
+    if (hubspotStatus === "connected") showStatus("HubSpot is connected. Find a company contact to continue.", "success");
+    if (hubspotStatus === "not-configured") showStatus("Add your HubSpot OAuth app credentials to the repository-root .env first.", "notice");
+    if (hubspotStatus === "failed") showStatus("HubSpot connection failed. Check the server log and OAuth app configuration.", "error");
+    if (hubspotStatus === "denied") showStatus("HubSpot connection was cancelled.", "notice");
+    if (hubspotStatus === "disconnected") showStatus("HubSpot was disconnected.", "success");
+  </script>
+</body>
+</html>

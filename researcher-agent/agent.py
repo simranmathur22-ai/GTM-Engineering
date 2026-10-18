@@ -11,10 +11,17 @@ This module implements the fundamental Agent-Tool interaction loop:
 
 import os
 import json
+import sys
+from pathlib import Path
 from typing import Optional
 from google import genai
 from google.genai import types
 
+REPOSITORY_DIRECTORY = Path(__file__).resolve().parent.parent
+if str(REPOSITORY_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_DIRECTORY))
+
+from shared_gemini import generate_content_with_retry
 from models import CompanyProfile
 from tools import AVAILABLE_TOOLS, TOOLS_DEFINITION
 
@@ -104,7 +111,8 @@ def research_company(domain: str, mock: bool = False) -> Optional[CompanyProfile
     print(f"\n[Agent] Starting research for {domain} with model={model}...")
 
     for step in range(1, max_steps + 1):
-        response = client.models.generate_content(
+        response = generate_content_with_retry(
+            client.models.generate_content,
             model=model,
             contents=contents,
             config=config,
@@ -148,7 +156,8 @@ def research_company(domain: str, mock: bool = False) -> Optional[CompanyProfile
         "Now compile all gathered information into the final CompanyProfile. "
         "Use the required structured output and only include information supported by the sources."
     )
-    final_response = client.models.generate_content(
+    final_response = generate_content_with_retry(
+        client.models.generate_content,
         model=model,
         contents=contents,
         config=types.GenerateContentConfig(

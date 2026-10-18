@@ -13,10 +13,12 @@ import logging
 import re
 import sys
 from pathlib import Path
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 
-# Load .env file if available
-load_dotenv(find_dotenv())
+APP_DIRECTORY = Path(__file__).resolve().parent
+REPOSITORY_DIRECTORY = APP_DIRECTORY.parent
+load_dotenv(REPOSITORY_DIRECTORY / ".env")
+load_dotenv(APP_DIRECTORY / ".env")
 
 from agent import research_company
 from cache import check_cache, save_cache, clear_cache

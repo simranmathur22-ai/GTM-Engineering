@@ -60,22 +60,23 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-### 4. Configure API keys
+### 4. Configure shared API keys
 
-Copy `.env.example` to `.env`.
+Create a shared `.env` at the repository root, one directory above
+`researcher-agent`. Both apps in this repository use this same file.
 
 **Windows — PowerShell**
 
 ```powershell
-Copy-Item .env.example .env
-notepad .env
+Copy-Item ..\.env.example ..\.env
+notepad ..\.env
 ```
 
 **macOS / Linux**
 
 ```bash
-cp .env.example .env
-nano .env
+cp ../.env.example ../.env
+nano ../.env
 ```
 
 Set your own values in `.env`:
@@ -86,7 +87,8 @@ GEMINI_MODEL=gemini-3.8-flash
 SERPER_API_KEY=your-serper-api-key
 ```
 
-Keep `.env` private. It is excluded from Git; never commit or share API keys.
+Keep the repository-root `.env` private. It is excluded from Git; never commit
+or share API keys.
 
 ### 5. Start the app
 
@@ -122,10 +124,11 @@ The SQLite cache is stored locally in `research_cache.db` and is not shared betw
 
 ## Troubleshooting
 
-- **`GEMINI_API_KEY is missing`**: Confirm `.env` exists in this project folder, contains a non-placeholder `GEMINI_API_KEY`, and restart `python webapp.py` after editing it.
+- **`GEMINI_API_KEY is missing`**: Confirm `.env` exists at the repository root, contains a non-placeholder `GEMINI_API_KEY`, and restart `python webapp.py` after editing it.
 - **`SERPER_API_KEY is missing`**: Add a Serper key to `.env`; the web app requires it for live web search.
 - **Gemini `404` / model unavailable**: Check that the configured `GEMINI_MODEL` is currently enabled for your API key.
 - **Gemini `429` / quota reached**: Wait for the quota window to reset or review the limits and billing for your Gemini project.
+- **Gemini `503` / temporarily unavailable**: The app retries temporary Gemini service errors with bounded backoff. If the service is still unavailable, wait briefly and try again.
 - **Port 5000 is already in use**: Stop the other process using that port, then restart the app.
 
 ## Project layout
