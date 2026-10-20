@@ -11,6 +11,8 @@ The goal is to help a sales rep go from a company name to a researched,
 reviewable first-touch message faster. The tools organize public information
 and help prepare outreach; the rep stays in control of what gets sent.
 
+[Watch the product demo](https://drive.google.com/file/d/1A9CWIrStV6OnpqNdQFGWtVT_TBjD-Qso/view?usp=drive_link)
+
 ## The sales workflow
 
 1. **Research an account.** Enter a company domain to create a concise brief
